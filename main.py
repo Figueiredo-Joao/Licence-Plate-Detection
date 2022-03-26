@@ -1,4 +1,4 @@
-# import the opencv library
+
 from cv2 import VideoCapture, imshow, imwrite, waitKey, destroyWindow, cv2
 import requests
 import base64
@@ -23,7 +23,7 @@ def run_tflite_model(interpreter, image):
     input_details = interpreter.get_input_details()[0]
     output_details = interpreter.get_output_details()[0]
 
-    # Check if the input type is quantized, then rescale input data to uint8
+    # Verifica o input, e faz rescale para uint8
     if input_details['dtype'] == numpy.uint8:
         input_scale, input_zero_point = input_details["quantization"]
         test_image = resizedImage / input_scale + input_zero_point
@@ -39,7 +39,7 @@ def run_tflite_model(interpreter, image):
 def readPlate(file_bytes):
     # print(file_bytes[0:100]) # isto é só para mostrar o conteudo
 
-    # %% Converter para base64
+    # %% Converte para base64
     file_in_base64 = base64.b64encode(file_bytes)
 
     # print(file_in_base64[0:100]) # isto é só para mostrar o conteudo
@@ -54,12 +54,12 @@ def readPlate(file_bytes):
     response = requests.post('https://api.plate.vision/dev/recognize/base64?profile=eu_ir',
                              headers=header, data=file_in_base64)
 
-    # %%
+    
     message_in_json = response.json()
-    # %%
+    
     print(message_in_json)
 
-    # %%
+    
     print(message_in_json['plates'][0]['results'][0]['rawText'])
     time.sleep(1)
     return
@@ -79,11 +79,7 @@ while (True):
     # mostra o feed
     cv2.imshow('frame', frame)
 
-    # define que a tecla 'c' grava a imagem do feed
     # envia a imagem guardada para a função de leitura da matricula
-    # if cv2.waitKey(1) & 0xFF == ord('c'):
-    # cv2.imwrite(filename='plate.jpeg', img=frame)
-    # readPlate(cv2.imencode('jpg', frame)[1])
 
     if run_tflite_model(interpreter, frame) == 1:
         readPlate(cv2.imencode('.jpg', frame)[1])
@@ -92,6 +88,5 @@ while (True):
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
-# termina tudo
 vid.release()
 cv2.destroyAllWindows()
